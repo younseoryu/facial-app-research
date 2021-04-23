@@ -49,6 +49,7 @@ export default function ({ navigation }) {
 					lastName: lastName,
 					birthYear: birthYear,
 					phoneNumber: phoneNumber,
+					profileUrl: '',
 				});
 			})
 			.catch( err => {
