@@ -12,26 +12,43 @@ import * as firebase from 'firebase';
 import { Layout, Text, TextInput, Button } from 'react-native-rapi-ui';
 
 export default function ({ navigation }) {
-	const [name, setName] = useState('');
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [birthYear, setBirthYear] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
+	// const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 
+	//phone number + @given.email as email, password is given as "givenpassword"
 	async function register() {
-		if(name === ''){
-			alert("Please enter your name");
+		if (firstName === ''){
+			alert("Please enter your first name");
+			return;
+		}
+		if (lastName === ''){
+			alert("Please enter your last name");
+			return;
+		}
+		if (birthYear === ''){
+			alert("Please enter your birth year");
+			return;
+		}
+		if (birthYear.length !== 4){
+			alert("Birth year should be four digits");
 			return;
 		}
 		setLoading(true);
 		await firebase
 			.auth()
-			.createUserWithEmailAndPassword(email, password)
+			.createUserWithEmailAndPassword(phoneNumber + "@given.email", "givenpassword")
 			.then(resolveObj => {
-				firebase.auth().currentUser.updateProfile({ displayName: name });
+				firebase.auth().currentUser.updateProfile({ displayName: firstName + " " + lastName });
 				const usrUID = firebase.auth().currentUser.uid;
 				firebase.database().ref('users/' + usrUID).set({
-					username: name,
-					email: email,
+					firstName: firstName,
+					lastName: lastName,
+					birthYear: birthYear,
+					phoneNumber: phoneNumber,
 				});
 			})
 			.catch( err => {
@@ -40,7 +57,11 @@ export default function ({ navigation }) {
 				var errorMessage = err.message;
 				// ...
 				setLoading(false);
-				alert(errorMessage);
+				if (errorCode === "auth/email-already-in-use"){
+					alert("The phone number is already in use.")
+				} else {
+					alert(errorMessage);
+				}
 				return;
 			});
 	}
@@ -84,37 +105,61 @@ export default function ({ navigation }) {
 							size="h3"
 							style={{
 								alignSelf: 'center',
-								padding: 30,
+								padding: 20,
 							}}
 						>
 							Register
 						</Text>
 						
-						<Text>Name</Text>
+						<Text>First Name</Text>
 						<TextInput
-							containerStyle={{ marginTop: 15 }}
-							placeholder="Enter your name"
-							value={name}
+							containerStyle={{ marginTop: 10 }}
+							placeholder="Enter your first name"
+							value={firstName}
 							autoCapitalize="none"
 							autoCompleteType="off"
 							autoCorrect={false}
 							keyboardType="default"
-							onChangeText={(text) => setName(text)}
+							onChangeText={(text) => setFirstName(text)}
 						/>
 
-						<Text style={{ marginTop: 15 }}>Email</Text>
+						<Text style={{ marginTop: 15 }}>Last Name</Text>
 						<TextInput
-							containerStyle={{ marginTop: 15 }}
-							placeholder="Enter your email"
-							value={email}
+							containerStyle={{ marginTop: 10 }}
+							placeholder="Enter your last name"
+							value={lastName}
 							autoCapitalize="none"
 							autoCompleteType="off"
 							autoCorrect={false}
-							keyboardType="email-address"
-							onChangeText={(text) => setEmail(text)}
+							keyboardType="default"
+							onChangeText={(text) => setLastName(text)}
 						/>
 
-						<Text style={{ marginTop: 15 }}>Password</Text>
+						<Text style={{ marginTop: 15 }}>Birth Year</Text>
+						<TextInput
+							containerStyle={{ marginTop: 10 }}
+							placeholder="Enter your birth year"
+							value={birthYear}
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							keyboardType="number-pad"
+							onChangeText={(text) => setBirthYear(text)}
+						/>
+
+						<Text style={{ marginTop: 15 }}>Phone Number</Text>
+						<TextInput
+							containerStyle={{ marginTop: 10 }}
+							placeholder="Enter your phone number"
+							value={phoneNumber}
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							keyboardType="number-pad"
+							onChangeText={(text) => setPhoneNumber(text)}
+						/>
+
+						{/* <Text style={{ marginTop: 15 }}>Password</Text>
 						<TextInput
 							containerStyle={{ marginTop: 15 }}
 							placeholder="Enter your password"
@@ -124,7 +169,7 @@ export default function ({ navigation }) {
 							autoCorrect={false}
 							secureTextEntry={true}
 							onChangeText={(text) => setPassword(text)}
-						/>
+						/> */}
 						<Button
 							text={loading ? 'Loading' : 'Create an account'}
 							onPress={() => {

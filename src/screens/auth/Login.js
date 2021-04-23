@@ -12,15 +12,16 @@ import * as firebase from 'firebase';
 import { Layout, Text, TextInput, Button } from 'react-native-rapi-ui';
 
 export default function ({ navigation }) {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
+	// const [email, setEmail] = useState('');
+	// const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 
 	async function login() {
 		setLoading(true);
 		await firebase
 			.auth()
-			.signInWithEmailAndPassword(email, password)
+			.signInWithEmailAndPassword(phoneNumber + "@given.email", "givenpassword")
 			.catch(function (error) {
 				// Handle Errors here.
 				var errorCode = error.code;
@@ -75,7 +76,20 @@ export default function ({ navigation }) {
 						>
 							Login
 						</Text>
-						<Text>Email</Text>
+
+						<Text>Phone Number</Text>
+						<TextInput
+							containerStyle={{ marginTop: 15 }}
+							placeholder="Enter your phone number"
+							value={phoneNumber}
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							keyboardType="number-pad"
+							onChangeText={(text) => setPhoneNumber(text)}
+						/>
+
+						{/* <Text>Email</Text>
 						<TextInput
 							containerStyle={{ marginTop: 15 }}
 							placeholder="Enter your email"
@@ -85,9 +99,9 @@ export default function ({ navigation }) {
 							autoCorrect={false}
 							keyboardType="email-address"
 							onChangeText={(text) => setEmail(text)}
-						/>
+						/> */}
 
-						<Text style={{ marginTop: 15 }}>Password</Text>
+						{/* <Text style={{ marginTop: 15 }}>Password</Text>
 						<TextInput
 							containerStyle={{ marginTop: 15 }}
 							placeholder="Enter your password"
@@ -97,9 +111,9 @@ export default function ({ navigation }) {
 							autoCorrect={false}
 							secureTextEntry={true}
 							onChangeText={(text) => setPassword(text)}
-						/>
+						/> */}
 						<Button
-							text={loading ? 'Loading' : 'Continue'}
+							text={loading ? 'Loading' : 'Get a call to continue'}
 							onPress={() => {
 								login();
 							}}
@@ -117,7 +131,7 @@ export default function ({ navigation }) {
 								justifyContent: 'center',
 							}}
 						>
-							<Text size="md">Don't have an account?</Text>
+							<Text size="md">Don't have an account?</Text> 
 							<TouchableOpacity
 								onPress={() => {
 									navigation.navigate('Register');
@@ -142,7 +156,7 @@ export default function ({ navigation }) {
 								justifyContent: 'center',
 							}}
 						>
-							<TouchableOpacity
+							{/* <TouchableOpacity
 								onPress={() => {
 									navigation.navigate('ForgetPassword');
 								}}
@@ -150,7 +164,7 @@ export default function ({ navigation }) {
 								<Text size="md" fontWeight="bold">
 									Forget password
 								</Text>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 						</View>
 					</View>
 				</ScrollView>

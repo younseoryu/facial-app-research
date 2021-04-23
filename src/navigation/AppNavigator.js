@@ -8,8 +8,9 @@ import { theme } from 'react-native-rapi-ui';
 import TabBarIcon from '../components/utils/TabBarIcon';
 import TabBarText from '../components/utils/TabBarText';
 //Screens
-import Home from '../screens/Home';
 import SecondScreen from '../screens/SecondScreen';
+import Capture from '../screens/Capture';
+import Gallery from '../screens/Gallery';
 import About from '../screens/About';
 import Profile from '../screens/Profile';
 import Loading from '../screens/utils/Loading';
@@ -70,23 +71,10 @@ const MainTabs = () => {
 		<Tabs.Navigator
 			tabBarOptions={{
 				tabStyle: { borderTopWidth: 0 },
-				style: { borderTopWidth: 1, borderColor: '#c0c0c0' },
+				style: { borderTopWidth: 1, borderColor: '#c0c0c0', height: 60, paddingBottom: 4, paddingTop: 2 },
 				activeTintColor: theme.primary,
 			}}
 		>
-			{/* these icons using Ionicons */}
-			<Tabs.Screen
-				name="Home"
-				component={Home}
-				options={{
-					tabBarLabel: ({ focused }) => (
-						<TabBarText focused={focused} title="Home" />
-					),
-					tabBarIcon: ({ focused }) => (
-						<TabBarIcon focused={focused} icon={'md-home'} />
-					),
-				}}
-			/>
 			<Tabs.Screen
 				name="Profile"
 				component={Profile}
@@ -96,6 +84,30 @@ const MainTabs = () => {
 					),
 					tabBarIcon: ({ focused }) => (
 						<TabBarIcon focused={focused} icon={'person'} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="Capture"
+				component={Capture}
+				options={{
+					tabBarLabel: ({ focused }) => (
+						<TabBarText focused={focused} title="Capture" />
+					),
+					tabBarIcon: ({ focused }) => (
+						<TabBarIcon focused={focused} icon={'camera'} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="Gallery"
+				component={Gallery}
+				options={{
+					tabBarLabel: ({ focused }) => (
+						<TabBarText focused={focused} title="Gallery" />
+					),
+					tabBarIcon: ({ focused }) => (
+						<TabBarIcon focused={focused} icon={'albums'} />
 					),
 				}}
 			/>
