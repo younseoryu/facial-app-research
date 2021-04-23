@@ -132,9 +132,12 @@ export default function ({ navigation }) {
       let uploadToFirebase = (blob) => {
         return new Promise((resolve, reject)=>{
           console.log('blob:\n', JSON.stringify(blob._data.name))
-          const usrUID =  firebase.auth().currentUser.uid;
-          const fullPath = "videos/" + usrUID + "/" + blob._data.name;
-          var storageRef = firebase.storage().ref(fullPath);
+          const usrName = firebase.auth().currentUser.displayName.replace(/\s+/g, '-').toLowerCase();
+          const usrUID = firebase.auth().currentUser.uid;
+          const currTime = new Date().toISOString().substring(0,19);
+          const fullPath = "videos/" + usrName + "-" + usrUID + "/";
+          const fileName = currTime + "-" + blob._data.name;
+          var storageRef = firebase.storage().ref(fullPath + fileName);
           storageRef.put(blob).then((snapshot)=>{
             blob.close();
             resolve(snapshot);
@@ -279,7 +282,7 @@ const styles = StyleSheet.create({
   });
 
   const recordOptions = {
-      maxDuration: 30,
+      maxDuration: 5,
       mute: true,
   }
 
