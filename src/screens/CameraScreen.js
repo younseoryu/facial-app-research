@@ -20,6 +20,7 @@ export default function ({ navigation }) {
     const [mediaPermission, setMediaPermission] = useState(null);
     const [audioPermission, setAudioPermission] = useState(null);
     const [rollPermission, setRollPermission] = useState(null);
+    const [writePermission, setWritePermission] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [progress, setProgress] = useState(0);
     const [type, setType] = useState(Camera.Constants.Type.front);
@@ -34,8 +35,11 @@ export default function ({ navigation }) {
             setMediaPermission(mediaStatus.status === 'granted');
             const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
             setAudioPermission(audioStatus.status === 'granted');
-            const rollStatus = await Permissions.askAsync(Permissions.CAMERA);
-            setRollPermission(rollStatus.status === 'granted');
+            // const rollStatus = await Permissions.askAsync(Permissions.CAMERA);
+            // setRollPermission(rollStatus.status === 'granted');
+            // const writeStatus = await Permissions.askAsync(Permissions.WRITE_EXTERNAL_STORAGE);
+            // setWritePermission(writeStatus.status === 'granted');
+
         })();
     }, []);
 
@@ -54,32 +58,37 @@ export default function ({ navigation }) {
     } else if (audioPermission === false) {
         return <Text>No access to audio</Text>;
     }
-    if (rollPermission === null) {
-        return <View />;
-    } else if (rollPermission === false) {
-        return <Text>No access to roll</Text>;
-    }
+    // if (rollPermission === null) {
+    //     return <View />;
+    // } else if (rollPermission === false) {
+    //     return <Text>No access to roll</Text>;
+    // }
+    // if (writePermission === null) {
+    //     return <View />;
+    // } else if (writePermission === false) {
+    //     return <Text>No access to write</Text>;
+    // }
 
     //take video and return asset obj
     const snap = async () => {
-        // const albumName = "screenshotsbro"
-        let video;
+        // const albumName = "Instagram"
+        let cachedVideo;
         if (cameraRef) {
             try{
-              video = await cameraRef.current.recordAsync(recordOptions)
+              cachedVideo = await cameraRef.current.recordAsync(recordOptions)
               .then(setIsRecording(true))
-              if(video){
+              if(cachedVideo){
                 setIsRecording(false);
               }
             } catch (error) {
               console.error(error);
             }
-            console.log(video);
+            console.log(cachedVideo);
         } 
-        const asset = await MediaLibrary.createAssetAsync(video.uri);
-        console.log(asset);
+        const asset = await MediaLibrary.createAssetAsync(cachedVideo.uri);
         // const album = await MediaLibrary.getAlbumAsync(albumName);
         // if (album != null){
+        //     console.log('adding to existing album (', albumName ,')');
         //     MediaLibrary.addAssetsToAlbumAsync(asset, album, false);
         // } else{
         //     console.log('creating a new album (', albumName ,')');
@@ -104,6 +113,7 @@ export default function ({ navigation }) {
     function uploadAsset(uri){
         // let fileObj = FileSystem.downloadAsync(uri, FileSystem.EncodingType.Base64);
         // console.log('fileObj:', fileObj);
+        cachedVideo
     }
 
 	return (

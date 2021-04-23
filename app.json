@@ -15,7 +15,13 @@
 		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
-			"supportsTablet": true
+			"supportsTablet": true,
+			"infoPlist": {
+				"NSPhotoLibraryAddUsageDescription": "This app uses the albums to save videos."
+			}
+		},
+		"android": {
+			"permissions": ["WRITE_EXTERNAL_STORAGE" ]
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"
