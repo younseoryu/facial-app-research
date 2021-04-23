@@ -11,7 +11,7 @@ import TabBarText from '../components/utils/TabBarText';
 import SecondScreen from '../screens/SecondScreen';
 import Capture from '../screens/Capture';
 import Gallery from '../screens/Gallery';
-import About from '../screens/About';
+import Inbox from '../screens/Inbox';
 import Profile from '../screens/Profile';
 import Loading from '../screens/utils/Loading';
 // Auth screens
@@ -112,14 +112,14 @@ const MainTabs = () => {
 				}}
 			/>
 			<Tabs.Screen
-				name="About"
-				component={About}
+				name="Inbox"
+				component={Inbox}
 				options={{
 					tabBarLabel: ({ focused }) => (
-						<TabBarText focused={focused} title="About" />
+						<TabBarText focused={focused} title="Inbox" />
 					),
 					tabBarIcon: ({ focused }) => (
-						<TabBarIcon focused={focused} icon={'ios-information-circle'} />
+						<TabBarIcon focused={focused} icon={'chatbubble'} />
 					),
 				}}
 			/>
