@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from "expo-permissions";
+// import * as FileSystem from 'expo-file-system';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -18,7 +19,9 @@ export default function ({ navigation }) {
     const [cameraPermission, setCameraPermission] = useState(null);
     const [mediaPermission, setMediaPermission] = useState(null);
     const [audioPermission, setAudioPermission] = useState(null);
+    const [rollPermission, setRollPermission] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [type, setType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null)
 
@@ -31,6 +34,8 @@ export default function ({ navigation }) {
             setMediaPermission(mediaStatus.status === 'granted');
             const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
             setAudioPermission(audioStatus.status === 'granted');
+            const rollStatus = await Permissions.askAsync(Permissions.CAMERA);
+            setRollPermission(rollStatus.status === 'granted');
         })();
     }, []);
 
@@ -49,38 +54,57 @@ export default function ({ navigation }) {
     } else if (audioPermission === false) {
         return <Text>No access to audio</Text>;
     }
+    if (rollPermission === null) {
+        return <View />;
+    } else if (rollPermission === false) {
+        return <Text>No access to roll</Text>;
+    }
 
+    //take video and return asset obj
     const snap = async () => {
+        // const albumName = "screenshotsbro"
+        let video;
         if (cameraRef) {
-            const albumName = "bro"
-            let photo;
             try{
-              photo = await cameraRef.current.recordAsync(recordOptions)
+              video = await cameraRef.current.recordAsync(recordOptions)
               .then(setIsRecording(true))
-              if(photo){
+              if(video){
                 setIsRecording(false);
               }
             } catch (error) {
               console.error(error);
             }
-            
-            // const photoAsset = await MediaLibrary.createAssetAsync(photo.uri);
-            // console.log('photo: ', photo);
-            // const album = await MediaLibrary.getAlbumAsync(albumName);
-            // console.log('album:', album)
-            // if (album != null){
-            //   // console.log('album already exists. Photo added to an existing album');
-            //   MediaLibrary.addAssetsToAlbumAsync(photoAsset, album, false);
-            //   // console.log('album: ', album)
-            // } else{
-            //   console.log("trying to add album")
-            //   await MediaLibrary.createAlbumAsync(albumName, photoAsset, false)
-            //   .then(console.log('creating a new album (', albumName ,'). Photo added to a new album'))
-            //   .catch(err=>(console.log(err)));
-            //   // console.log('albumName: ', albumName)
-            // }
+            console.log(video);
         } 
+        const asset = await MediaLibrary.createAssetAsync(video.uri);
+        console.log(asset);
+        // const album = await MediaLibrary.getAlbumAsync(albumName);
+        // if (album != null){
+        //     MediaLibrary.addAssetsToAlbumAsync(asset, album, false);
+        // } else{
+        //     console.log('creating a new album (', albumName ,')');
+        //     MediaLibrary.createAlbumAsync(albumName, asset, false);
+        // }
+        return asset;
     };
+
+    function progressBar(timeleft, timetotal) {
+        setProgress(timetotal - timeleft);
+        if(timeleft > 0) {
+            setTimeout(function() {
+                progressBar(timeleft - 1, timetotal);
+            }, 1000);
+        } else{
+            setTimeout(function() {
+                setProgress(0);
+            }, 1000);
+        }
+    };
+
+    function uploadAsset(uri){
+        // let fileObj = FileSystem.downloadAsync(uri, FileSystem.EncodingType.Base64);
+        // console.log('fileObj:', fileObj);
+    }
 
 	return (
 		<Layout>
@@ -141,17 +165,21 @@ export default function ({ navigation }) {
                              :
                              <TouchableOpacity
                                 style={styles.button}
-                                onPress={() => {
-                                    snap();
+                                onPress={async () => {
+                                    progressBar(5, 5);
+                                    let assetObj = await snap();
+                                    console.log('assetObj: ', assetObj);
+                                    uploadAsset(assetObj.uri);
                                 }}>
                                 <Feather name="play-circle" style={styles.button} size={60} />
                             </TouchableOpacity>
                         }
                     </View>
                     <View style={{ flex: 1 }} >
-                        {/* <TouchableOpacity style={styles.button}>
-                            <Feather name="pause-circle" style={styles.button} size={50} />
-                        </TouchableOpacity> */}
+                        <TouchableOpacity style={styles.button}>
+                            {/* <Feather name="pause-circle" style={styles.button} size={50} /> */}
+                            <Text style={styles.text}>{progress}/{recordOptions.maxDuration}</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -182,8 +210,13 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     text: {
-      fontSize: 18,
-      color: 'white',
+        fontSize: 28,
+        flex: 1,
+        // alignSelf: 'flex-end',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        margin: 15,
     },
     pictureOverlay:{
         flex: 1,
