@@ -9,6 +9,7 @@ import TabBarIcon from '../components/utils/TabBarIcon';
 import TabBarText from '../components/utils/TabBarText';
 //Screens
 import SecondScreen from '../screens/SecondScreen';
+import CameraScreen from '../screens/CameraScreen';
 import Capture from '../screens/Capture';
 import Gallery from '../screens/Gallery';
 import Inbox from '../screens/Inbox';
@@ -61,6 +62,7 @@ const Main = () => {
 		>
 			<MainStack.Screen name="MainTabs" component={MainTabs} />
 			<MainStack.Screen name="SecondScreen" component={SecondScreen} />
+			<MainStack.Screen name="CameraScreen" component={CameraScreen} />
 		</MainStack.Navigator>
 	);
 };

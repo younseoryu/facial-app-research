@@ -3,7 +3,6 @@ import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Layout, Text, Button } from 'react-native-rapi-ui';
 import * as firebase from 'firebase';
 import * as ImagePicker from 'expo-image-picker';
-var imageName = require('../../assets/spinner.gif')
 
 export default function ({ navigation }) {
 	const [name, setName] = useState('');
