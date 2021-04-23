@@ -8,7 +8,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from "expo-permissions";
-// import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system';
+import * as firebase from 'firebase';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -110,11 +111,39 @@ export default function ({ navigation }) {
         }
     };
 
-    function uploadAsset(uri){
-        // let fileObj = FileSystem.downloadAsync(uri, FileSystem.EncodingType.Base64);
-        // console.log('fileObj:', fileObj);
-        cachedVideo
-    }
+    let uriToBlob = (uri) => {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onload = function() {
+            // return the blob
+            resolve(xhr.response);
+          };
+          xhr.onerror = function() {
+            // something went wrong
+            reject(new Error('uriToBlob failed'));
+          };
+          // this helps us get a blob
+          xhr.responseType = 'blob';
+          xhr.open('GET', uri, true);
+          xhr.send(null);
+        });
+      }
+
+      let uploadToFirebase = (blob) => {
+        return new Promise((resolve, reject)=>{
+          console.log('blob:\n', JSON.stringify(blob._data.name))
+          const usrUID =  firebase.auth().currentUser.uid;
+          const fullPath = "videos/" + usrUID + "/" + blob._data.name;
+          var storageRef = firebase.storage().ref(fullPath);
+          storageRef.put(blob).then((snapshot)=>{
+            blob.close();
+            resolve(snapshot);
+          }).catch((error)=>{
+            reject(error);
+          });
+        });
+      }      
+    
 
 	return (
 		<Layout>
@@ -176,10 +205,16 @@ export default function ({ navigation }) {
                              <TouchableOpacity
                                 style={styles.button}
                                 onPress={async () => {
-                                    progressBar(5, 5);
+                                    progressBar(recordOptions.maxDuration, recordOptions.maxDuration);
                                     let assetObj = await snap();
-                                    console.log('assetObj: ', assetObj);
-                                    uploadAsset(assetObj.uri);
+                                    uriToBlob(assetObj.uri).then(async(blob)=>{
+                                        return uploadToFirebase(blob);
+                                      }).then((snapshot)=>{
+                                        // console.log("File uploaded: ", snapshot);
+                                        console.log("upload success!")
+                                      }).catch((err)=>{
+                                        console.log(err)
+                                      }); 
                                 }}>
                                 <Feather name="play-circle" style={styles.button} size={60} />
                             </TouchableOpacity>
@@ -244,6 +279,10 @@ const styles = StyleSheet.create({
   });
 
   const recordOptions = {
-      maxDuration: 5,
+      maxDuration: 30,
       mute: true,
+  }
+
+  const encodingOptions = {
+      encoding: FileSystem.EncodingType.Base64,
   }
