@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Layout, Text } from 'react-native-rapi-ui';
+import { Layout, Text, Button } from 'react-native-rapi-ui';
 import * as firebase from 'firebase';
 import * as ImagePicker from 'expo-image-picker';
 var imageName = require('../../assets/spinner.gif')
@@ -88,12 +88,30 @@ export default function ({ navigation }) {
 					</View>
 				</View>
 			</View>
+			<View style={{alignItems: 'center',}}>
+					<Button
+						status="danger"
+						text="Logout"
+						status="info"
+						onPress={() => {
+							firebase.auth().signOut();
+						}}
+						style={{
+							marginBottom:30,
+							minWidth:200,
+						}}
+					/>
+			</View>
+			
 		</Layout>
 	);
 }
 
 
 const stylesProfile = StyleSheet.create({
+	container:{
+		flex: 1,
+	},
 	header:{
 	  backgroundColor: "#00BFFF",
 	  height:200,

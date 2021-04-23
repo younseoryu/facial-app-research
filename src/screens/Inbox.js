@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Linking} from 'react-native';
 import * as firebase from 'firebase';
 import {
 	Layout,
@@ -24,28 +24,18 @@ export default function ({ navigation }) {
 			<Section>
 				<SectionContent>
 					<Text fontWeight="bold" style={{ textAlign: 'center' }}>
-						These UI components provided by Rapi UI
+						Dont remove this code until you coding inbox
 					</Text>
 					<Button
 						style={{ marginTop: 10 }}
-						text="Rapi UI Documentation"
+						text="go to younseo's website"
 						status="info"
-						onPress={() => Linking.openURL('https://rapi-ui.kikiding.space/')}
+						onPress={() => Linking.openURL('https://younseoryu.com/')}
 					/>
 					<Button
 						text="Go to second screen"
 						onPress={() => {
 							navigation.navigate('SecondScreen');
-						}}
-						style={{
-							marginTop: 10,
-						}}
-					/>
-					<Button
-						status="danger"
-						text="Logout"
-						onPress={() => {
-							firebase.auth().signOut();
 						}}
 						style={{
 							marginTop: 10,
