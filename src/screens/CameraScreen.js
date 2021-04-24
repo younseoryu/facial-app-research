@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Layout, TopNav, theme } from 'react-native-rapi-ui';
 import { Ionicons } from '@expo/vector-icons';
 // import { SimpleLineIcons } from '@expo/vector-icons'; 
@@ -20,29 +21,43 @@ export default function ({ navigation }) {
     const [cameraPermission, setCameraPermission] = useState(null);
     const [mediaPermission, setMediaPermission] = useState(null);
     const [audioPermission, setAudioPermission] = useState(null);
-    const [rollPermission, setRollPermission] = useState(null);
-    const [writePermission, setWritePermission] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [progress, setProgress] = useState(0);
     const [type, setType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null)
 
-    useEffect(() => {
-        (async () => {
-            
-            const  cameraStatus  = await Camera.requestPermissionsAsync();
-            setCameraPermission(cameraStatus.status === 'granted');
-            const  mediaStatus  = await MediaLibrary.requestPermissionsAsync();
-            setMediaPermission(mediaStatus.status === 'granted');
-            const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-            setAudioPermission(audioStatus.status === 'granted');
-            // const rollStatus = await Permissions.askAsync(Permissions.CAMERA);
-            // setRollPermission(rollStatus.status === 'granted');
-            // const writeStatus = await Permissions.askAsync(Permissions.WRITE_EXTERNAL_STORAGE);
-            // setWritePermission(writeStatus.status === 'granted');
+    // useEffect(() => {
+    //     (async () => {
+    //         const  cameraStatus  = await Camera.requestPermissionsAsync();
+    //         setCameraPermission(cameraStatus.status === 'granted');
+    //         const  mediaStatus  = await MediaLibrary.requestPermissionsAsync();
+    //         setMediaPermission(mediaStatus.status === 'granted');
+    //         const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+    //         setAudioPermission(audioStatus.status === 'granted');
 
-        })();
-    }, []);
+    //     })();
+    // }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+          // Do something when the screen is focused
+            (async () => {
+                const  cameraStatus  = await Camera.requestPermissionsAsync();
+                setCameraPermission(cameraStatus.status === 'granted');
+                const  mediaStatus  = await MediaLibrary.requestPermissionsAsync();
+                setMediaPermission(mediaStatus.status === 'granted');
+                const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+                setAudioPermission(audioStatus.status === 'granted');
+            })();
+        
+          return () => {
+            // Do something when the screen is unfocused
+            // Useful for cleanup functions
+            console.log("lost focus! stop recording.")
+            cameraRef.current.stopRecording(recordOptions);
+          };
+        }, [])
+    );
 
     if (cameraPermission === null) {
         return <View />;
@@ -59,16 +74,6 @@ export default function ({ navigation }) {
     } else if (audioPermission === false) {
         return <Text>No access to audio</Text>;
     }
-    // if (rollPermission === null) {
-    //     return <View />;
-    // } else if (rollPermission === false) {
-    //     return <Text>No access to roll</Text>;
-    // }
-    // if (writePermission === null) {
-    //     return <View />;
-    // } else if (writePermission === false) {
-    //     return <Text>No access to write</Text>;
-    // }
 
     //take video and return asset obj
     const snap = async () => {
@@ -87,14 +92,6 @@ export default function ({ navigation }) {
             console.log(cachedVideo);
         } 
         const asset = await MediaLibrary.createAssetAsync(cachedVideo.uri);
-        // const album = await MediaLibrary.getAlbumAsync(albumName);
-        // if (album != null){
-        //     console.log('adding to existing album (', albumName ,')');
-        //     MediaLibrary.addAssetsToAlbumAsync(asset, album, false);
-        // } else{
-        //     console.log('creating a new album (', albumName ,')');
-        //     MediaLibrary.createAlbumAsync(albumName, asset, false);
-        // }
         return asset;
     };
 
@@ -136,7 +133,7 @@ export default function ({ navigation }) {
           const usrUID = firebase.auth().currentUser.uid;
           const currTime = new Date().toISOString().substring(0,19);
           const fullPath = "videos/" + usrName + "-" + usrUID + "/";
-          const fileName = currTime + "-" + blob._data.name;
+          const fileName = currTime + "-" + blob._data.name;    
           var storageRef = firebase.storage().ref(fullPath + fileName);
           storageRef.put(blob).then((snapshot)=>{
             blob.close();
@@ -210,14 +207,19 @@ export default function ({ navigation }) {
                                 onPress={async () => {
                                     progressBar(recordOptions.maxDuration, recordOptions.maxDuration);
                                     let assetObj = await snap();
+                                    if (assetObj.duration <  recordOptions.maxDuration-1) {
+                                        console.log("recording interrupted. no need to upload video to storage");
+                                        return; 
+                                    } 
                                     uriToBlob(assetObj.uri).then(async(blob)=>{
                                         return uploadToFirebase(blob);
-                                      }).then((snapshot)=>{
+                                    }).then((snapshot)=>{
                                         // console.log("File uploaded: ", snapshot);
                                         console.log("upload success!")
-                                      }).catch((err)=>{
+                                    }).catch((err)=>{
                                         console.log(err)
-                                      }); 
+                                    }); 
+                                    
                                 }}>
                                 <Feather name="play-circle" style={styles.button} size={60} />
                             </TouchableOpacity>
