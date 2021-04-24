@@ -75,6 +75,7 @@ export default function ({ navigation }) {
 					contentContainerStyle={{
 						flexGrow: 1,
 					}}
+					keyboardShouldPersistTaps='handled'
 				>
 					<View
 						style={{

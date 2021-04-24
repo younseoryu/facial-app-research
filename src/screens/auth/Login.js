@@ -35,11 +35,12 @@ export default function ({ navigation }) {
 	return (
 		<KeyboardAvoidingView behavior="height" enabled style={{ flex: 1 }}>
 			<StatusBar style="auto" translucent backgroundColor="#f7f7f7" />
-			<Layout>
+			<Layout >
 				<ScrollView
 					contentContainerStyle={{
 						flexGrow: 1,
 					}}
+					keyboardShouldPersistTaps='handled'
 				>
 					<View
 						style={{
