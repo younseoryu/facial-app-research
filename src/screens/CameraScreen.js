@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, Vibration} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, Vibration, ImageBackground} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Layout, TopNav, theme } from 'react-native-rapi-ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -83,7 +83,7 @@ export default function ({ navigation }) {
         return asset;
     };
 
-    function progressBar(timeleft, timetotal) {
+    let progressBar = (timeleft, timetotal) => {
         if(timeleft > 0 && isRecordingInterrupted.current === false) {
             setProgress(timetotal - timeleft);
             if(timeleft % (recordOptions.maxDuration / TOTAL_SAMPLE_FACE) == 0) {Vibration.vibrate(1000)}
@@ -144,25 +144,29 @@ export default function ({ navigation }) {
 				leftAction={() => navigation.goBack()}
 			/>
 			<View style={styles.container}>
-                <Camera ref = {cameraRef}  style={styles.camera} type={type}  >
+                <Camera ref = {cameraRef}  style={styles.camera} type={type} ratio="4:3">
                 
                     <View style={{flex:1}}>
-                        <View style={{ flex: 3, backgroundColor: "transparent",  flexDirection:"row" }}>
-                            <View style={{ flex: 1}}>  
-                                {progress < recordOptions.maxDuration * 1 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 2 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-two.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 3 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-three.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 4 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-four.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 5 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-five.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 6 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-six.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 7 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-seven.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 8 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-eight.png')}/> : <></>}
+                        <ImageBackground source={require('../../assets/sampleFaces/oval4.png')} style={styles.overlayStyle}>
+                            <View style={{ flex: 3, backgroundColor: "transparent",  flexDirection:"row" }}>
+                                <View style={{ flex: 1}}>  
+                                    {progress < recordOptions.maxDuration * 1 / TOTAL_SAMPLE_FACE ? <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 2 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 1 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-two.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 3 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 2 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-three.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 4 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 3 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-four.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 5 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 4 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-five.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 6 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 5 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-six.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 7 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 6 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-seven.png')}/> : <></>}
+                                    {progress < recordOptions.maxDuration * 8 / TOTAL_SAMPLE_FACE && progress >= recordOptions.maxDuration * 7 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-eight.png')}/> : <></>}
+                                </View>
+                                <View style={{ flex: 1, backgroundColor: "transparent" }}/>
+                                <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             </View>
-                            <View style={{ flex: 1, backgroundColor: "transparent" }}/>
-                            <View style={{ flex: 1, backgroundColor: "transparent" }}/>
-                        </View>
-                        <View style={{ flex: 3, backgroundColor: "transparent" }} />
-                        <View style={{ flex: 3, backgroundColor: "transparent" }} />
+                            <View style={{ flex: 3, backgroundColor: "transparent" }}>
+                                
+                            </View>
+                            <View style={{ flex: 3, backgroundColor: "transparent" }} />
+                        </ImageBackground>
                     </View>
                     
                 </Camera>
@@ -268,6 +272,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     imageStyle: {
+        flex: 1,
         alignSelf: 'center',
         height:'95%', 
         width:'95%',
@@ -277,6 +282,17 @@ const styles = StyleSheet.create({
         borderColor:'white',
         borderWidth:1,
     },
+    overlayStyle:{
+        flex: 1,
+        alignSelf: 'center',
+        height:'100%', 
+        width:'100%',
+        // borderRadius: 150 / 4,
+        marginLeft:10,
+        marginTop:10,
+        // borderColor:'white',
+        // borderWidth:1,
+    }
   });
 
   const recordOptions = {
