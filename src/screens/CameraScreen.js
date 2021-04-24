@@ -159,8 +159,15 @@ export default function ({ navigation }) {
                 
                     <View style={{flex:1}}>
                         <View style={{ flex: 3, backgroundColor: "transparent",  flexDirection:"row" }}>
-                            <View style={{ flex: 1}}>
-                                <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/>
+                            <View style={{ flex: 1}}>  
+                                {progress < recordOptions.maxDuration * 1 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 2 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-two.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 3 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-three.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 4 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-four.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 5 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-five.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 6 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-six.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 7 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-seven.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 8 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-eight.png')}/> : <></>}
                             </View>
                             <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             <View style={{ flex: 1, backgroundColor: "transparent" }}/>
@@ -284,7 +291,7 @@ const styles = StyleSheet.create({
   });
 
   const recordOptions = {
-      maxDuration: 5,
+      maxDuration: 32,
       mute: true,
   }
 
