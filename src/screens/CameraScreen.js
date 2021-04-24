@@ -216,6 +216,12 @@ export default function ({ navigation }) {
                                     }).then((snapshot)=>{
                                         // console.log("File uploaded: ", snapshot);
                                         console.log("upload success!")
+                                        snapshot.ref.getDownloadURL()
+                                        .then((downloadURL) => {
+                                            //get downloadurl
+                                            console.log('downloadurl: ', downloadURL);
+                                        })
+                                        .catch(err=>(console.log('failed to get downloadurl: ', err)))
                                     }).catch((err)=>{
                                         console.log(err)
                                     }); 
@@ -296,7 +302,7 @@ const styles = StyleSheet.create({
   });
 
   const recordOptions = {
-      maxDuration: 32,
+      maxDuration: 8,
       mute: true,
   }
 

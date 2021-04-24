@@ -19,7 +19,7 @@ export default function ({ navigation }) {
 			//get the download url for the profile pic
 			snapshot.ref.getDownloadURL().then((downloadURL) => {
 				//update profile pic download url to firebase db
-				console.log('db updated')
+				console.log('db updated, downloadurl: ', downloadURL)
 				firebase.database().ref("users/" + firebase.auth().currentUser.uid).update({"profileUrl": downloadURL});
 			})
 		})	
