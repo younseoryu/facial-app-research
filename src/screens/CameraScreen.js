@@ -11,6 +11,8 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from "expo-permissions";
 import * as FileSystem from 'expo-file-system';
 import * as firebase from 'firebase';
+import * as Progress from 'react-native-progress';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -22,6 +24,7 @@ export default function ({ navigation }) {
     const [mediaPermission, setMediaPermission] = useState(null);
     const [audioPermission, setAudioPermission] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [progress, setProgress] = useState(0);
     const isRecordingInterrupted = useRef(false);
     const [type, setType] = useState(Camera.Constants.Type.front);
@@ -93,6 +96,7 @@ export default function ({ navigation }) {
         } else{
             setTimeout(function() {
                 setProgress(0);
+                setIsRecording(false);
             }, 1000);
         }
     };
@@ -115,6 +119,7 @@ export default function ({ navigation }) {
         });
       }
 
+      //upload blob to firebase and return download ur
       let uploadToFirebase = (blob) => {
         return new Promise((resolve, reject)=>{
           console.log('blob:\n', JSON.stringify(blob._data.name))
@@ -124,12 +129,33 @@ export default function ({ navigation }) {
           const fullPath = "videos/" + usrName + "-" + usrUID + "/";
           const fileName = currTime + "-" + blob._data.name;    
           var storageRef = firebase.storage().ref(fullPath + fileName);
-          storageRef.put(blob).then((snapshot)=>{
-            blob.close();
-            resolve(snapshot);
-          }).catch((error)=>{
-            reject(error);
-          });
+          var uploadTask = storageRef.put(blob);
+          uploadTask.on('state_changed', 
+                (snapshot) => {
+                    // Observe state change events such as progress, pause, and resume
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    setUploadProgress(snapshot.bytesTransferred / snapshot.totalBytes * 100);
+                    switch (snapshot.state) {
+                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                            console.log('Upload is paused');
+                            break;
+                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                            console.log('Upload is running');
+                            break;
+                    }
+                }, 
+                (err) => {
+                    // Handle unsuccessful uploads
+                    reject(err);
+                }, 
+                () => {
+                    // Handle successful uploads on complete
+                    setTimeout(()=>{ setUploadProgress(0) }, 3000);
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        resolve(downloadURL);
+                    });
+                }
+          );
         });
       }      
     
@@ -162,10 +188,16 @@ export default function ({ navigation }) {
                                 <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                                 <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             </View>
-                            <View style={{ flex: 3, backgroundColor: "transparent" }}>
-                                
+                            <View style={{ flex: 5, backgroundColor: "transparent" }} />
+                            <View style={{ flex: 1, backgroundColor: "transparent", flexDirection:"row", alignItems: 'center' }} >
+                                <View style={{ flex: 1, backgroundColor: "transparent" }}/>
+                                <View style={{ flex: 4, backgroundColor: "transparent"}}>
+                                    {uploadProgress ===100 ? <Text style={{ fontSize: 20, fontWeight:'bold', color:'white', textAlign:"center", backgroundColor:'black' }}>UPLOAD SUCCESS!</Text> : <></>}
+                                    {uploadProgress !== 0 && uploadProgress !== 100 ? <Text style={{ fontSize: 20, fontWeight:'bold', color:'white', textAlign:"center", backgroundColor:'black' }}>UPLOADING...</Text> : <></>}
+                                    {uploadProgress !== 0 ? <Progress.Bar progress={uploadProgress} width={null} height={20} color={'red'} borderColor={'black'} borderWidth={3}/> : <></>}
+                                </View>
+                                <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             </View>
-                            <View style={{ flex: 3, backgroundColor: "transparent" }} />
                         </ImageBackground>
                     </View>
                     
@@ -212,16 +244,15 @@ export default function ({ navigation }) {
                                         return; 
                                     } 
                                     uriToBlob(assetObj.uri).then(async(blob)=>{
+                                        //upload blob to firebase and return downloadurl
                                         return uploadToFirebase(blob);
-                                    }).then((snapshot)=>{
-                                        // console.log("File uploaded: ", snapshot);
-                                        console.log("upload success!")
-                                        snapshot.ref.getDownloadURL()
-                                        .then((downloadURL) => {
-                                            //get downloadurl
-                                            console.log('downloadurl: ', downloadURL);
-                                        })
-                                        .catch(err=>(console.log('failed to get downloadurl: ', err)))
+                                    }).then((downloadURL)=>{
+                                        console.log('video successfully uploaded to storage!\ndownloadurl: ', downloadURL);
+                                        //upload the download url to database
+                                        let currTime = new Date().toISOString().substring(0,19);
+                                        const fullPath = "users/" + firebase.auth().currentUser.uid + "/downloadUrls"
+                                        firebase.database().ref(fullPath).update({[currTime]: downloadURL});
+                                        // firebase.database().ref("users/" + firebase.auth().currentUser.uid).set({"profileUrl": downloadURL});
                                     }).catch((err)=>{
                                         console.log(err)
                                     }); 
