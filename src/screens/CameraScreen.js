@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, Vibration} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Layout, TopNav, theme } from 'react-native-rapi-ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,20 +23,9 @@ export default function ({ navigation }) {
     const [audioPermission, setAudioPermission] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [progress, setProgress] = useState(0);
+    const isRecordingInterrupted = useRef(false);
     const [type, setType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null)
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const  cameraStatus  = await Camera.requestPermissionsAsync();
-    //         setCameraPermission(cameraStatus.status === 'granted');
-    //         const  mediaStatus  = await MediaLibrary.requestPermissionsAsync();
-    //         setMediaPermission(mediaStatus.status === 'granted');
-    //         const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-    //         setAudioPermission(audioStatus.status === 'granted');
-
-    //     })();
-    // }, []);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -51,9 +40,9 @@ export default function ({ navigation }) {
             })();
         
           return () => {
-            // Do something when the screen is unfocused
-            // Useful for cleanup functions
-            console.log("lost focus! stop recording.")
+            isRecordingInterrupted.current = true;
+            console.log('lost focus! setting isRecordingInterrupted to: ', isRecordingInterrupted);
+            console.log('stopRecording() called and progressBar() recursion is stopped')
             cameraRef.current.stopRecording(recordOptions);
           };
         }, [])
@@ -89,15 +78,15 @@ export default function ({ navigation }) {
             } catch (error) {
               console.error(error);
             }
-            console.log(cachedVideo);
         } 
         const asset = await MediaLibrary.createAssetAsync(cachedVideo.uri);
         return asset;
     };
 
     function progressBar(timeleft, timetotal) {
-        setProgress(timetotal - timeleft);
-        if(timeleft > 0) {
+        if(timeleft > 0 && isRecordingInterrupted.current === false) {
+            setProgress(timetotal - timeleft);
+            if(timeleft % (recordOptions.maxDuration / TOTAL_SAMPLE_FACE) == 0) {Vibration.vibrate(1000)}
             setTimeout(function() {
                 progressBar(timeleft - 1, timetotal);
             }, 1000);
@@ -160,14 +149,14 @@ export default function ({ navigation }) {
                     <View style={{flex:1}}>
                         <View style={{ flex: 3, backgroundColor: "transparent",  flexDirection:"row" }}>
                             <View style={{ flex: 1}}>  
-                                {progress < recordOptions.maxDuration * 1 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 2 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-two.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 3 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-three.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 4 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-four.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 5 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-five.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 6 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-six.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 7 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-seven.png')}/> : <></>}
-                                {progress < recordOptions.maxDuration * 8 / 8 ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-eight.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 1 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-one.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 2 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-two.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 3 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-three.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 4 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-four.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 5 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-five.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 6 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-six.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 7 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-seven.png')}/> : <></>}
+                                {progress < recordOptions.maxDuration * 8 / TOTAL_SAMPLE_FACE ?  <Image style={styles.imageStyle} source={require('../../assets/sampleFaces/facial-expression-eight.png')}/> : <></>}
                             </View>
                             <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             <View style={{ flex: 1, backgroundColor: "transparent" }}/>
@@ -294,6 +283,8 @@ const styles = StyleSheet.create({
       maxDuration: 32,
       mute: true,
   }
+
+  const TOTAL_SAMPLE_FACE = 8;
 
   const encodingOptions = {
       encoding: FileSystem.EncodingType.Base64,
