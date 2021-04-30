@@ -77,13 +77,6 @@ export default function ({ navigation }) {
 						<Text style={stylesProfile.name}>{phoneNumber}</Text>
 						<Text style={stylesProfile.info}>Research Participant</Text>
 						<Text style={stylesProfile.description}>Thank you for your participation.{"\n"} This is a facial data collection app.</Text>
-						
-						{/* <TouchableOpacity style={stylesProfile.buttonContainer} >
-							<Text></Text>  
-						</TouchableOpacity>              
-						<TouchableOpacity style={stylesProfile.buttonContainer} >
-							<Text></Text> 
-						</TouchableOpacity> */}
 					</View>
 				</View>
 			</View>
@@ -91,7 +84,7 @@ export default function ({ navigation }) {
 					<Button
 						status="danger"
 						text="Logout"
-						status="info"
+						color="#70A1D7"
 						onPress={() => {
 							firebase.auth().signOut();
 						}}
@@ -112,7 +105,7 @@ const stylesProfile = StyleSheet.create({
 		flex: 1,
 	},
 	header:{
-	  backgroundColor: "#00BFFF",
+	  backgroundColor: "#70A1D7",
 	  height:200,
 	},
 	avatarContainer: {

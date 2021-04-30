@@ -169,7 +169,7 @@ export default function ({ navigation }) {
 				}
 				leftAction={() => navigation.goBack()}
 			/>
-			<View style={styles.container}>
+        <View style={styles.container}>
                 <Camera ref = {cameraRef}  style={styles.camera} type={type} ratio="4:3">
                 
                     <View style={{flex:1}}>

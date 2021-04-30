@@ -24,7 +24,8 @@ export default function ({ navigation }) {
 			const fullPath = "users/" + firebase.auth().currentUser.uid+"/downloadUrls";
 			firebase.database().ref(fullPath).once('value', (snapshot) => {
 				const snapshotVal = snapshot.val()
-				let urlArray = Object.keys(snapshotVal).map((key) => [key, snapshotVal[key]]);
+				//convert to current time zone using new Date(), and remove characters including and after 'GMT' 
+				let urlArray = Object.keys(snapshotVal).map((key) => [String(new Date(key)).split('GMT')[0], snapshotVal[key]]);
 				//sort array by key value (time)
 				setUrlsArr( urlArray.sort(function(a,b) { return a[0]-b[0]}) );
 			})
@@ -40,7 +41,7 @@ export default function ({ navigation }) {
 			{urlsArr.map((key, idx) => (
 				//map only when index is odd number
 				idx % 2 == 1 ||
-				<View style={styles.column}>
+				<View style={styles.column} key={idx}>
 						<View style={styles.box}>
 							<TouchableOpacity
 								style={styles.touch}
@@ -48,7 +49,7 @@ export default function ({ navigation }) {
 									handleOpenWithWebBrowser(urlsArr[idx][1]);
 								}}
 							>
-								<Text style={styles.text}>{urlsArr[idx][0].replace("T", "\n")}</Text>
+								<Text style={styles.text}>{urlsArr[idx][0]}</Text>
 							</TouchableOpacity>
 						</View>
 					{
@@ -63,38 +64,12 @@ export default function ({ navigation }) {
 									handleOpenWithWebBrowser(urlsArr[idx+1][1]);
 								}}
 							>
-								<Text style={styles.text}>{urlsArr[idx+1][0].replace("T", "\n")}</Text>
+								<Text style={styles.text}>{urlsArr[idx+1][0]}</Text>
 							</TouchableOpacity>
 						</View>
 					}
 				</View>
 			))}
-			{/* 
-			<View style={styles.column}>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>
-				</View>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>	
-				</View>
-			</View>
-			<View style={styles.column}>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>
-				</View>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>	
-				</View>
-			</View>
-			<View style={styles.column}>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>
-				</View>
-				<View style={styles.box}>
-					<Text style={styles.text}>Gallery</Text>	
-				</View>
-			</View> 
-			*/}
 		</ScrollView>
 	);
 }
@@ -104,7 +79,7 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
 	container: {
 		flexGrow: 1,
-		borderColor: 'gray', 
+		borderColor: 'transparent', 
 		borderWidth: 8, 
 		flexDirection:'column'
 	},
@@ -116,13 +91,16 @@ const styles = StyleSheet.create({
 		flex:1, 
 		borderColor: 'black',
 		borderWidth: 2,
-		backgroundColor:'orange', 
+		backgroundColor:'#70A1D7', 
+		borderRadius: 20,
+		margin: 3,
+		padding: 2,
     },
 	emptyBox: {
 		flex:1, 
-		borderColor: 'black',
+		borderColor: 'transparent',
 		borderWidth: 2,
-		backgroundColor:'red', 
+		backgroundColor:'transparent', 
     },
 	touch: {
 		flex:1, 
@@ -132,6 +110,6 @@ const styles = StyleSheet.create({
 		backgroundColor:'transparent', 
 		textAlign:"center", 
 		textAlignVertical: 'center',
-		fontSize: 25,
+		fontSize: 22,
     },
   });
