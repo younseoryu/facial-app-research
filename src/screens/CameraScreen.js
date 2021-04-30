@@ -18,7 +18,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const aspectRatio = Dimensions.get('window').width / Dimensions.get('window').height; 
 
-export default function ({ navigation }) {
+export default function ({ route, navigation }) {
 
     const [cameraPermission, setCameraPermission] = useState(null);
     const [mediaPermission, setMediaPermission] = useState(null);
@@ -27,7 +27,7 @@ export default function ({ navigation }) {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [progress, setProgress] = useState(0);
     const isRecordingInterrupted = useRef(false);
-    const [type, setType] = useState(Camera.Constants.Type.front);
+    const [type, setType] = useState(route.params.identity == 'patient' ? Camera.Constants.Type.front : Camera.Constants.Type.back);
     const cameraRef = useRef(null)
 
     useFocusEffect(
@@ -40,6 +40,7 @@ export default function ({ navigation }) {
                 setMediaPermission(mediaStatus.status === 'granted');
                 const audioStatus = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
                 setAudioPermission(audioStatus.status === 'granted');
+                console.log(route.params.identity);
             })();
         
           return () => {

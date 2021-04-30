@@ -100,7 +100,7 @@ export default function ({ navigation }) {
 						text="I AM GUARDIAN"
 						color="#D291BC"
 						onPress={() => {
-							navigation.navigate('CameraScreen')
+							navigation.navigate('CameraScreen', {identity: 'guardian'})
 						}}
 						style={{
 							marginTop:10,
@@ -112,7 +112,7 @@ export default function ({ navigation }) {
 						text="I AM PATIENT"
 						color="#70A1D7"
 						onPress={() => {
-							navigation.navigate('CameraScreen')
+							navigation.navigate('CameraScreen', {identity: 'patient'})
 						}}
 						style={{
 							marginTop:10,
