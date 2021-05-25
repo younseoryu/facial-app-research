@@ -141,7 +141,7 @@ export default function ({ route, navigation }) {
                             console.log('Upload is paused');
                             break;
                         case firebase.storage.TaskState.RUNNING: // or 'running'
-                            console.log('Upload is running');
+                            console.log('Upload is running', Math.floor(snapshot.bytesTransferred/ snapshot.totalBytes * 100), '%');
                             break;
                     }
                 }, 
@@ -195,7 +195,7 @@ export default function ({ route, navigation }) {
                                 <View style={{ flex: 4, backgroundColor: "transparent"}}>
                                     {uploadProgress ===100 ? <Text style={{ fontSize: 20, fontWeight:'bold', color:'white', textAlign:"center", backgroundColor:'black' }}>UPLOAD SUCCESS!</Text> : <></>}
                                     {uploadProgress !== 0 && uploadProgress !== 100 ? <Text style={{ fontSize: 20, fontWeight:'bold', color:'white', textAlign:"center", backgroundColor:'black' }}>UPLOADING...</Text> : <></>}
-                                    {uploadProgress !== 0 ? <Progress.Bar progress={uploadProgress} width={null} height={20} color={'red'} borderColor={'black'} borderWidth={3}/> : <></>}
+                                    {uploadProgress !== 0 ? <Progress.Bar progress={uploadProgress/100} width={null} height={20} color={'red'} borderColor={'black'} borderWidth={3}/> : <></>}
                                 </View>
                                 <View style={{ flex: 1, backgroundColor: "transparent" }}/>
                             </View>
