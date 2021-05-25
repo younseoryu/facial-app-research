@@ -24,10 +24,12 @@ export default function ({ navigation }) {
 			const fullPath = "users/" + firebase.auth().currentUser.uid+"/downloadUrls";
 			firebase.database().ref(fullPath).once('value', (snapshot) => {
 				const snapshotVal = snapshot.val()
-				//convert to current time zone using new Date(), and remove characters including and after 'GMT' 
-				let urlArray = Object.keys(snapshotVal).map((key) => [String(new Date(key)).split('GMT')[0], snapshotVal[key]]);
-				//sort array by key value (time)
-				setUrlsArr( urlArray.sort(function(a,b) { return a[0]-b[0]}) );
+				if(snapshotVal != null){
+					//convert to current time zone using new Date(), and remove characters including and after 'GMT' 
+					let urlArray = Object.keys(snapshotVal).map((key) => [String(new Date(key)).split('GMT')[0], snapshotVal[key]]);
+					//sort array by key value (time)
+					setUrlsArr( urlArray.sort(function(a,b) { return a[0]-b[0]}) );
+				}
 			})
 
 			return () => {
