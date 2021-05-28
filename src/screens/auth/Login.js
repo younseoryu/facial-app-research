@@ -47,7 +47,7 @@ export default function ({ navigation }) {
 							flex: 1,
 							justifyContent: 'center',
 							alignItems: 'center',
-							backgroundColor: '#f7f7f7',
+							backgroundColor: '#ffffff',
 						}}
 					>
 						<Image
@@ -56,7 +56,7 @@ export default function ({ navigation }) {
 								height: 220,
 								width: 220,
 							}}
-							source={require('../../../assets/login.png')}
+							source={require('../../../assets/smilemind2.png')}
 						/>
 					</View>
 					<View
@@ -75,7 +75,7 @@ export default function ({ navigation }) {
 							}}
 							size="h3"
 						>
-							Login
+							Login for SmileMind
 						</Text>
 
 						<Text>Phone Number</Text>
