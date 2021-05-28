@@ -91,7 +91,7 @@ export default function ({ navigation }) {
 								height: 220,
 								width: 220,
 							}}
-							source={require('../../../assets/smilemind2.png')}
+							source={require('../../../assets/ucsdlogo.png')}
 						/>
 					</View>
 					<View
